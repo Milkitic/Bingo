@@ -6,7 +6,6 @@ using System.Windows.Forms;
 using Yutang.Layer;
 using DX = SharpDX;
 using D2D = SharpDX.Direct2D1;
-using WIC = SharpDX.WIC;
 using DW = SharpDX.DirectWrite;
 using DXGI = SharpDX.DXGI;
 using Mathe = SharpDX.Mathematics.Interop;
@@ -16,9 +15,9 @@ namespace Yutang.Form
     public partial class RenderForm : System.Windows.Forms.Form
     {
         // Basic
-        public static D2D.Factory Factory { get; set; } = new D2D.Factory(); // Factory for creating 2D elements
-        private static DW.Factory FactoryWrite { get; set; } = new DW.Factory(); // For creating DirectWrite Elements
-        public static D2D.RenderTarget RenderTarget { get; set; } // Target of rendering
+        private static D2D.Factory Factory { get; } = new D2D.Factory(); // Factory for creating 2D elements
+        private static DW.Factory FactoryWrite { get; } = new DW.Factory(); // For creating DirectWrite Elements
+        public static D2D.RenderTarget RenderTarget { get; private set; } // Target of rendering
 
         // Layer
         private Dictionary<string, ILayer> _layerList;
