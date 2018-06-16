@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using Yutang.Layer;
 using DX = SharpDX;
@@ -39,12 +40,13 @@ namespace Yutang.Form
         private int _drawCount;
         private readonly Stopwatch _sw = new Stopwatch();
         private long _delay;
+        private readonly Queue<long> _delayQueue = new Queue<long>();
 
         public RenderForm()
         {
             InitializeComponent();
 
-            ClientSize = new Size(500, 500);
+            ClientSize = new Size(Program.MainSettings.WindowWidth, Program.MainSettings.WindowHeight);
 
             Load += LoadTarget;
 
@@ -61,7 +63,7 @@ namespace Yutang.Form
             {
                 Hwnd = Handle,
                 PixelSize = new DX.Size2(ClientSize.Width, ClientSize.Height),
-                PresentOptions = D2D.PresentOptions.RetainContents
+                PresentOptions = Program.MainSettings.LimitFps ? D2D.PresentOptions.None : D2D.PresentOptions.Immediately
             };
             var renderProp = new D2D.RenderTargetProperties(D2D.RenderTargetType.Default, pixelFormat, 96, 96,
                 D2D.RenderTargetUsage.None, D2D.FeatureLevel.Level_DEFAULT);
@@ -75,11 +77,10 @@ namespace Yutang.Form
             // Create colors
             _colorBack = new Mathe.RawColor4(0, 0, 0, 1);
 
-            _layerList = new Dictionary<string, ILayer>
-            {
-                {"back", new Background()},
-                {"chess", new Chessboard()},
-            };
+            _layerList = new Dictionary<string, ILayer>();
+            _layerList.Add("back", new Background());
+            if (Program.MainSettings.UseParticle) _layerList.Add("particle", new Particle(500));
+            _layerList.Add("chess", new Chessboard());
 
             // Create brushes
             _whiteBrush = new D2D.SolidColorBrush(RenderTarget, new Mathe.RawColor4(1, 1, 1, 1));
@@ -119,7 +120,12 @@ namespace Yutang.Form
                 item.Value.Draw();
             }
 
-            RenderTarget.DrawText(_delay.ToString(), _textFormat, new Mathe.RawRectangleF(0, 0, 400, 200), _whiteBrush);
+            if (_delayQueue.Count >= 50)
+                _delayQueue.Dequeue();
+            _delayQueue.Enqueue(_delay);
+
+            RenderTarget.DrawText(Math.Round(1 / (_delayQueue.AsEnumerable().Average() / Stopwatch.Frequency)) + " FPS",
+                _textFormat, new Mathe.RawRectangleF(0, 0, 400, 200), _whiteBrush);
             // End drawing
             RenderTarget.EndDraw();
 

@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Yutang.Form;
-
+using Yutang.Model;
 using D2D = SharpDX.Direct2D1;
 using Mathe = SharpDX.Mathematics.Interop;
+using WIC = SharpDX.WIC;
+using DXIO = SharpDX.IO;
 
 namespace Yutang.Layer
 {
@@ -16,18 +19,20 @@ namespace Yutang.Layer
         private readonly PointF _centerPointF;
 
         // Board
-        private readonly Model.Board _boardRound;
-        private readonly Model.Board _boardCentre;
+        private List<Board> _boards = new List<Board>();
+        //private readonly Board _boardRound;
+        //private readonly Board _boardCentre;
 
         // Rectangles
-        private readonly Mathe.RawRectangleF[,] _rectangle;
-        private readonly Mathe.RawRectangleF[,] _rectangle2;
+        private readonly List<Mathe.RawRectangleF[,]> _rectangles = new List<Mathe.RawRectangleF[,]>();
 
         // Brushes
         private readonly D2D.Brush _whiteBrush;
         private readonly D2D.Brush _blueBrush;
-        private readonly D2D.Brush[,] _brushes;
-        private readonly D2D.Brush[,] _brushes2;
+        private readonly List<D2D.Brush[,]> _brushes = new List<D2D.Brush[,]>();
+
+
+        private readonly string _resPath = Path.Combine(Environment.CurrentDirectory, "templet");
 
         public Chessboard()
         {
@@ -46,104 +51,52 @@ namespace Yutang.Layer
             _whiteBrush = new D2D.SolidColorBrush(RenderForm.RenderTarget, cWhite);
             _blueBrush = new D2D.SolidColorBrush(RenderForm.RenderTarget, cBlue);
 
-            // Create boards
-            _boardRound = new Model.Board(7, 7)
-            {
-                VisibleBoard = new[,]
-                {
-                    {0, 0, 1, 1, 1, 0, 0},
-                    {0, 1, 1, 0, 1, 1, 0},
-                    {1, 1, 0, 0, 0, 1, 1},
-                    {1, 0, 0, 0, 0, 0, 1},
-                    {1, 1, 0, 0, 0, 1, 1},
-                    {0, 1, 1, 0, 1, 1, 0},
-                    {0, 0, 1, 1, 1, 0, 0},
-                }
-            };
-            _boardCentre = new Model.Board(5, 5)
-            {
-                VisibleBoard = new[,]
-                {
-                    {0, 0, 1, 0, 0},
-                    {0, 1, 1, 1, 0},
-                    {1, 1, 1, 1, 1},
-                    {0, 1, 1, 1, 0},
-                    {0, 0, 1, 0, 0},
-                }
-            };
-
+            LoadSettings();
+   
             // Create rectangles
-            _rectangle = new Mathe.RawRectangleF[_boardRound.X, _boardRound.Y];
-            _rectangle2 = new Mathe.RawRectangleF[_boardCentre.X, _boardCentre.Y];
+            for (var index = 0; index < _boards.Count; index++)
+            {
+                var item = _boards[index];
+                _rectangles.Add(new Mathe.RawRectangleF[item.X, item.Y]);
+                _brushes.Add(new D2D.Brush[item.X, item.Y]);
+                const float recWidth = 51, margin = 5;
 
-            #region Color settings
-            _boardRound.SetColor(0, 2, cGreen);
-            _boardRound.SetColor(0, 3, cYellow);
-            _boardRound.SetColor(0, 4, cRed);
+                float widthC = recWidth * item.X + margin * (item.X - 1),
+                    heightC = recWidth * item.Y + margin * (item.Y - 1),
+                    leftC = _centerPointF.X - widthC / 2,
+                    topC = _centerPointF.Y - heightC / 2;
 
-            _boardRound.SetColor(1, 1, cPirple);
-            _boardRound.SetColor(1, 2, cBlue);
-            _boardRound.SetColor(1, 4, cBlue);
-            _boardRound.SetColor(1, 5, cPirple);
+                for (var i = 0; i < item.X; i++)
+                {
+                    for (var j = 0; j < item.Y; j++)
+                    {
+                        if (item.VisibleBoard[i, j] == 0) continue;
+                        float left = leftC + i * (recWidth + margin), top = topC + j * (recWidth + margin);
+                        _rectangles[index][i, j] = new Mathe.RawRectangleF(left, top, left + recWidth, top + recWidth);
+                        _brushes[index][i, j] = new D2D.SolidColorBrush(RenderForm.RenderTarget, item.Color[i, j]);
+                    }
+                }
+            }
 
-            _boardRound.SetColor(2, 0, cGreen);
-            _boardRound.SetColor(2, 1, cBlue);
-            _boardRound.SetColor(2, 5, cBlue);
-            _boardRound.SetColor(2, 6, cGrey);
+            #region Image settings
+            //_boardCentre.SetImage(0, 2, LoadFromFile(Path.Combine(_resPath, "13.png")));
 
-            _boardRound.SetColor(3, 0, cYellow);
-            _boardRound.SetColor(3, 6, cYellow);
+            //_boardCentre.SetImage(1, 1, LoadFromFile(Path.Combine(_resPath, "1A.png")));
+            //_boardCentre.SetImage(1, 2, LoadFromFile(Path.Combine(_resPath, "6.png")));
+            //_boardCentre.SetImage(1, 3, LoadFromFile(Path.Combine(_resPath, "9.png")));
 
-            _boardRound.SetColor(4, 0, cRed);
-            _boardRound.SetColor(4, 1, cBlue);
-            _boardRound.SetColor(4, 5, cBlue);
-            _boardRound.SetColor(4, 6, cGreen);
+            //_boardCentre.SetImage(2, 0, LoadFromFile(Path.Combine(_resPath, "12.png")));
+            //_boardCentre.SetImage(2, 1, LoadFromFile(Path.Combine(_resPath, "2.png")));
+            //_boardCentre.SetImage(2, 2, LoadFromFile(Path.Combine(_resPath, "7C.png")));
+            //_boardCentre.SetImage(2, 3, LoadFromFile(Path.Combine(_resPath, "8.png")));
+            //_boardCentre.SetImage(2, 4, LoadFromFile(Path.Combine(_resPath, "10.png")));
 
-            _boardRound.SetColor(5, 1, cPirple);
-            _boardRound.SetColor(5, 2, cBlue);
-            _boardRound.SetColor(5, 4, cBlue);
-            _boardRound.SetColor(5, 5, cPirple);
+            //_boardCentre.SetImage(3, 1, LoadFromFile(Path.Combine(_resPath, "3.png")));
+            //_boardCentre.SetImage(3, 2, LoadFromFile(Path.Combine(_resPath, "4.png")));
+            //_boardCentre.SetImage(3, 3, LoadFromFile(Path.Combine(_resPath, "5.png")));
 
-            _boardRound.SetColor(6, 2, cGrey);
-            _boardRound.SetColor(6, 3, cYellow);
-            _boardRound.SetColor(6, 4, cGreen);
+            //_boardCentre.SetImage(4, 2, LoadFromFile(Path.Combine(_resPath, "11.png")));
             #endregion
-
-            _brushes = new D2D.Brush[_boardRound.X, _boardRound.Y];
-            _brushes2 = new D2D.Brush[_boardCentre.X, _boardCentre.Y];
-
-            const float recWidth = 51, margin = 5;
-            float widthC = recWidth * _boardRound.X + margin * (_boardRound.X - 1),
-                heightC = recWidth * _boardRound.Y + margin * (_boardRound.Y - 1),
-                leftC = _centerPointF.X - widthC / 2,
-                topC = _centerPointF.Y - heightC / 2;
-
-            for (var i = 0; i < _boardRound.X; i++)
-            {
-                for (var j = 0; j < _boardRound.Y; j++)
-                {
-                    if (_boardRound.VisibleBoard[i, j] == 0) continue;
-                    float left = leftC + i * (recWidth + margin), top = topC + j * (recWidth + margin);
-                    _rectangle[i, j] = new Mathe.RawRectangleF(left, top, left + recWidth, top + recWidth);
-                    _brushes[i, j] = new D2D.SolidColorBrush(RenderForm.RenderTarget, _boardRound.Color[i, j]);
-                }
-            }
-
-            widthC = recWidth * _boardCentre.X + margin * (_boardCentre.X - 1);
-            heightC = recWidth * _boardCentre.Y + margin * (_boardCentre.Y - 1);
-            leftC = _centerPointF.X - widthC / 2;
-            topC = _centerPointF.Y - heightC / 2;
-
-            for (var i = 0; i < _boardCentre.X; i++)
-            {
-                for (var j = 0; j < _boardCentre.Y; j++)
-                {
-                    if (_boardCentre.VisibleBoard[i, j] == 0) continue;
-                    float left = leftC + i * (recWidth + margin), top = topC + j * (recWidth + margin);
-                    _rectangle2[i, j] = new Mathe.RawRectangleF(left, top, left + recWidth, top + recWidth);
-                    _brushes2[i, j] = new D2D.SolidColorBrush(RenderForm.RenderTarget, _boardCentre.Color[i, j]);
-                }
-            }
         }
 
         public void Measure()
@@ -153,23 +106,20 @@ namespace Yutang.Layer
 
         public void Draw()
         {
-            for (var i = 0; i < _boardRound.X; i++)
+            for (var index = 0; index < _boards.Count; index++)
             {
-                for (var j = 0; j < _boardRound.Y; j++)
+                var item = _boards[index];
+                for (var i = 0; i < item.X; i++)
                 {
-                    if (_boardRound.VisibleBoard[i, j] == 0) continue;
-                    RenderForm.RenderTarget.FillRectangle(_rectangle[i, j], _brushes[i, j]);
-                    RenderForm.RenderTarget.DrawRectangle(_rectangle[i, j], _whiteBrush, 1f);
-                }
-            }
-
-            for (var i = 0; i < _boardCentre.X; i++)
-            {
-                for (var j = 0; j < _boardCentre.Y; j++)
-                {
-                    if (_boardCentre.VisibleBoard[i, j] == 0) continue;
-                    RenderForm.RenderTarget.FillRectangle(_rectangle2[i, j], _brushes2[i, j]);
-                    RenderForm.RenderTarget.DrawRectangle(_rectangle2[i, j], _blueBrush, 3f);
+                    for (var j = 0; j < item.Y; j++)
+                    {
+                        if (item.VisibleBoard[i, j] == 0) continue;
+                        RenderForm.RenderTarget.FillRectangle(_rectangles[index][i, j], _brushes[index][i, j]);
+                        if (item.Image[i, j] != null)
+                            RenderForm.RenderTarget.DrawBitmap(item.Image[i, j], _rectangles[index][i, j], 1,
+                                D2D.BitmapInterpolationMode.Linear);
+                        RenderForm.RenderTarget.DrawRectangle(_rectangles[index][i, j], _whiteBrush, 1f);
+                    }
                 }
             }
         }
@@ -177,9 +127,43 @@ namespace Yutang.Layer
         public void Dispose()
         {
             foreach (var item in _brushes)
-                item?.Dispose();
+                foreach (var item2 in item)
+                    item2?.Dispose();
 
             _whiteBrush.Dispose();
+        }
+
+        private static D2D.Bitmap LoadFromFile(string filePath)
+        {
+            WIC.ImagingFactory imagingFactory = new WIC.ImagingFactory();
+            DXIO.NativeFileStream fileStream = new DXIO.NativeFileStream(filePath,
+                DXIO.NativeFileMode.Open, DXIO.NativeFileAccess.Read);
+
+            WIC.BitmapDecoder bitmapDecoder =
+                new WIC.BitmapDecoder(imagingFactory, fileStream, WIC.DecodeOptions.CacheOnDemand);
+            WIC.BitmapFrameDecode frame = bitmapDecoder.GetFrame(0);
+
+            WIC.FormatConverter converter = new WIC.FormatConverter(imagingFactory);
+            converter.Initialize(frame, WIC.PixelFormat.Format32bppPRGBA);
+
+            return D2D.Bitmap.FromWicBitmap(RenderForm.RenderTarget, converter);
+        }
+
+        private void LoadSettings()
+        {
+            for (var i = 0; i < Program.MainSettings.BoardInfomation.Count; i++)
+            {
+                var item = Program.MainSettings.BoardInfomation[i];
+                _boards.Add(new Board(item.Width, item.Height));
+                _boards[i].VisibleBoard = item.VisibleBoard;
+                for (var j = 0; j < item.BoardPointInfomation.Count; j++)
+                {
+                    var item2 = item.BoardPointInfomation[j];
+                    _boards[i].SetColor(item2.X, item2.Y, item2.Color);
+                    _boards[i].SetVisible(item2.X, item2.Y, item2.Visible);
+                    if (item2.ImagePath != null) _boards[i].SetImage(item2.X, item2.Y, LoadFromFile(Path.Combine(_resPath, item2.ImagePath)));
+                }
+            }
         }
     }
 }
