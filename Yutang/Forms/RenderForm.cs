@@ -153,5 +153,30 @@ namespace Yutang.Forms
             _control.Left = Left + Size.Width;
             _control.Top = Top;
         }
+
+        private void RenderForm_MouseClick(object sender, MouseEventArgs e)
+        {
+            foreach (var item in LayerList.Reverse())
+            {
+                if (!IsInRecs(e, item.Value, out Mathe.RawRectangleF recF)) continue;
+                item.Value.OnClicked(new Point(e.X, e.Y), recF);
+                break;
+            }
+        }
+
+        private static bool IsInRecs(MouseEventArgs e, ILayer layer, out Mathe.RawRectangleF recF)
+        {
+            foreach (var item in layer.Rectangles)
+            {
+                if (e.X >= item.Left && e.X <= item.Right && e.Y >= item.Top && e.Y <= item.Bottom)
+                {
+                    recF = item;
+                    return true;
+                }
+            }
+
+            recF = default;
+            return false;
+        }
     }
 }

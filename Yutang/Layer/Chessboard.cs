@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -16,21 +17,34 @@ namespace Yutang.Layer
 {
     internal class Chessboard : ILayer
     {
+        public List<Mathe.RawRectangleF> Rectangles { get; private set; } = new List<Mathe.RawRectangleF>();
+
         private readonly PointF _centerPointF;
 
         // Board
-        public List<Board> Boards { get; set; } = new List<Board>() ;
+        public List<Board> Boards { get; set; } = new List<Board>();
         //private readonly Board _boardRound;
         //private readonly Board _boardCentre;
 
         // Rectangles
         private readonly List<Mathe.RawRectangleF[,]> _rectangles = new List<Mathe.RawRectangleF[,]>();
+        private Mathe.RawRectangleF _selectedRec;
 
         // Brushes
         private readonly D2D.Brush _yellowBrush;
         private readonly D2D.Brush _blueBrush;
+        private readonly D2D.Brush _redBrush;
+        private readonly D2D.Brush _maskBrush;
+
+        // Bitmaps
+        private D2D.Bitmap _boxBitmap;
+        private Mathe.RawRectangleF _boxRec;
+
         private readonly List<D2D.Brush[,]> _brushes = new List<D2D.Brush[,]>();
 
+        private readonly Dictionary<Mathe.RawRectangleF, int> _boardMap = new Dictionary<Mathe.RawRectangleF, int>();
+        private bool _isBoxing = false;
+        private List<Mathe.RawRectangleF> tmpRectangles = new List<Mathe.RawRectangleF>();
 
         private readonly string _resPath = Path.Combine(Environment.CurrentDirectory, "templet");
 
@@ -50,9 +64,11 @@ namespace Yutang.Layer
             // Create brushes
             _yellowBrush = new D2D.SolidColorBrush(RenderForm.RenderTarget, cYellow2);
             _blueBrush = new D2D.SolidColorBrush(RenderForm.RenderTarget, cBlue);
+            _redBrush = new D2D.SolidColorBrush(RenderForm.RenderTarget, cRed);
+            _maskBrush = new D2D.SolidColorBrush(RenderForm.RenderTarget, new Mathe.RawColor4(0, 0, 0, 0.5f));
 
             LoadSettings();
-   
+            int intI = 0;
             // Create rectangles
             for (var index = 0; index < Boards.Count; index++)
             {
@@ -74,6 +90,9 @@ namespace Yutang.Layer
                         float left = leftC + i * (recWidth + margin), top = topC + j * (recWidth + margin);
                         _rectangles[index][i, j] = new Mathe.RawRectangleF(left, top, left + recWidth, top + recWidth);
                         _brushes[index][i, j] = new D2D.SolidColorBrush(RenderForm.RenderTarget, item.Color[i, j]);
+                        Rectangles.Add(_rectangles[index][i, j]);
+                        _boardMap.Add(_rectangles[index][i, j], intI);
+                        intI++;
                     }
                 }
             }
@@ -122,6 +141,14 @@ namespace Yutang.Layer
                     }
                 }
             }
+
+            RenderForm.RenderTarget.DrawRectangle(_selectedRec, _redBrush, 2f);
+            if (_boxBitmap != null)
+            {
+                 RenderForm.RenderTarget.FillRectangle(
+                    new Mathe.RawRectangleF(0, 0, RenderForm.Width, RenderForm.Height), _maskBrush);
+                RenderForm.RenderTarget.DrawBitmap(_boxBitmap, _boxRec, 1, D2D.BitmapInterpolationMode.Linear);
+            }
         }
 
         public void Dispose()
@@ -133,6 +160,109 @@ namespace Yutang.Layer
             _yellowBrush.Dispose();
             _blueBrush.Dispose();
         }
+
+        public void OnClicked(Point point, Mathe.RawRectangleF recF)
+        {
+            if (!_isBoxing)
+            {
+                _selectedRec = recF;
+
+
+                if (!_boardMap.Keys.Contains(recF)) return;
+
+                int i = _boardMap[recF];
+                Debug.WriteLine(i);
+                ShowBox(point, recF, i);
+            }
+            else
+            {
+                Rectangles = tmpRectangles.ToArray().ToList();
+                tmpRectangles.Clear();
+                _boxBitmap = null;
+                _boxRec = default;
+                _isBoxing = false;
+            }
+        }
+
+        private void ShowBox(Point point, Mathe.RawRectangleF recF, int i)
+        {
+            string fileName;
+            switch (i)
+            {
+                case 0:
+                case 16:
+                    fileName = "des_7.png";
+                    break;
+                case 1:
+                case 22:
+                    fileName = "des_5.png";
+                    break;
+                case 2:
+                case 13:
+                    fileName = "des_10.png";
+                    break;
+                case 3:
+                case 20:
+                    fileName = "des_11.png";
+                    break;
+                case 4:
+                case 18:
+                    fileName = "des_3.png";
+                    break;
+                case 5:
+                case 19:
+                    fileName = "des_2.png";
+                    break;
+                case 6:
+                case 17:
+                    fileName = "des_4.png";
+                    break;
+                case 8:
+                case 9:
+                    fileName = "des_9.png";
+                    break;
+                case 10:
+                case 21:
+                    fileName = "des_0.png";
+                    break;
+                case 11:
+                case 12:
+                    fileName = "des_6.png";
+                    break;
+                case 14:
+                case 15:
+                    fileName = "des_8.png";
+                    break;
+                case 30:
+                    fileName = "des_1.png";
+                    break;
+                default:
+                    return;
+            }
+
+            PointF loc = new PointF(recF.Left, recF.Top);
+            _boxBitmap = DxHelper.LoadFromFile(Path.Combine(_resPath, fileName));
+
+            const float scaled = 2f;
+            float scaledW = _boxBitmap.Size.Width / scaled,
+                scaledH = _boxBitmap.Size.Height / scaled;
+            float left = loc.X - 35,
+                top = loc.Y - scaledH + 30,
+                right = left + scaledW,
+                bottom = top + scaledH;
+            _boxRec = new Mathe.RawRectangleF(left, top, right, bottom);
+            tmpRectangles = Rectangles.ToArray().ToList();
+            Rectangles.Clear();
+            Rectangles.AddRange(new[]
+            {
+                new Mathe.RawRectangleF(0, 0, RenderForm.Width, top),
+                new Mathe.RawRectangleF(0, top, left, bottom),
+                new Mathe.RawRectangleF(right, top, RenderForm.Width, bottom),
+                new Mathe.RawRectangleF(0, bottom, RenderForm.Width, RenderForm.Height),
+            });
+            _isBoxing = true;
+        }
+
         private void LoadSettings()
         {
             for (var i = 0; i < Program.MainSettings.BoardInfomation.Count; i++)

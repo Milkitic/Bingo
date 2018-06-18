@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,8 @@ namespace Yutang.Layer
 {
     internal class Particle : ILayer
     {
+        public List<Mathe.RawRectangleF> Rectangles { get; } = new List<Mathe.RawRectangleF>();
+
         private readonly Mathe.RawVector2[] _startPos;
 
         private readonly Mathe.RawVector2[] _nowPos;
@@ -115,6 +118,11 @@ namespace Yutang.Layer
         }
 
         public void Dispose()
+        {
+
+        }
+
+        public void OnClicked(Point point, Mathe.RawRectangleF recF)
         {
 
         }

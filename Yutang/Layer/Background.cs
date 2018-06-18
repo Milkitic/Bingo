@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,8 @@ namespace Yutang.Layer
 {
     internal class Background : ILayer
     {
+        public List<Mathe.RawRectangleF> Rectangles { get; } = new List<Mathe.RawRectangleF>();
+
         private D2D.Bitmap _bgBitmap;
         private readonly string _resPath = Path.Combine(Environment.CurrentDirectory, "templet");
 
@@ -32,6 +35,11 @@ namespace Yutang.Layer
             RenderForm.RenderTarget.DrawBitmap(_bgBitmap,
                 new Mathe.RawRectangleF(0, 0, RenderForm.Width, RenderForm.Height), 1,
                 D2D.BitmapInterpolationMode.Linear);
+        }
+
+        public void OnClicked(Point point, Mathe.RawRectangleF recF)
+        {
+
         }
 
         public void Dispose()
