@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Yutang.Form;
+using Yutang.Forms;
 using Yutang.Model;
 using D2D = SharpDX.Direct2D1;
 using Mathe = SharpDX.Mathematics.Interop;
@@ -19,7 +19,7 @@ namespace Yutang.Layer
         private readonly PointF _centerPointF;
 
         // Board
-        private List<Board> _boards = new List<Board>();
+        public List<Board> Boards { get; set; } = new List<Board>() ;
         //private readonly Board _boardRound;
         //private readonly Board _boardCentre;
 
@@ -27,7 +27,7 @@ namespace Yutang.Layer
         private readonly List<Mathe.RawRectangleF[,]> _rectangles = new List<Mathe.RawRectangleF[,]>();
 
         // Brushes
-        private readonly D2D.Brush _whiteBrush;
+        private readonly D2D.Brush _yellowBrush;
         private readonly D2D.Brush _blueBrush;
         private readonly List<D2D.Brush[,]> _brushes = new List<D2D.Brush[,]>();
 
@@ -46,17 +46,17 @@ namespace Yutang.Layer
             var cBlue = new Mathe.RawColor4(0 / 255f, 163 / 255f, 233 / 255f, 1);
             var cGrey = new Mathe.RawColor4(195 / 255f, 195 / 255f, 195 / 255f, 1);
             var cWhite = new Mathe.RawColor4(1, 1, 1, 1);
-
+            var cYellow2 = new Mathe.RawColor4(226 / 255f, 234 / 255f, 152 / 255f, 0.8f);
             // Create brushes
-            _whiteBrush = new D2D.SolidColorBrush(RenderForm.RenderTarget, cWhite);
+            _yellowBrush = new D2D.SolidColorBrush(RenderForm.RenderTarget, cYellow2);
             _blueBrush = new D2D.SolidColorBrush(RenderForm.RenderTarget, cBlue);
 
             LoadSettings();
    
             // Create rectangles
-            for (var index = 0; index < _boards.Count; index++)
+            for (var index = 0; index < Boards.Count; index++)
             {
-                var item = _boards[index];
+                var item = Boards[index];
                 _rectangles.Add(new Mathe.RawRectangleF[item.X, item.Y]);
                 _brushes.Add(new D2D.Brush[item.X, item.Y]);
                 const float recWidth = 51, margin = 5;
@@ -106,9 +106,9 @@ namespace Yutang.Layer
 
         public void Draw()
         {
-            for (var index = 0; index < _boards.Count; index++)
+            for (var index = 0; index < Boards.Count; index++)
             {
-                var item = _boards[index];
+                var item = Boards[index];
                 for (var i = 0; i < item.X; i++)
                 {
                     for (var j = 0; j < item.Y; j++)
@@ -118,7 +118,7 @@ namespace Yutang.Layer
                         if (item.Image[i, j] != null)
                             RenderForm.RenderTarget.DrawBitmap(item.Image[i, j], _rectangles[index][i, j], 1,
                                 D2D.BitmapInterpolationMode.Linear);
-                        RenderForm.RenderTarget.DrawRectangle(_rectangles[index][i, j], _whiteBrush, 1f);
+                        RenderForm.RenderTarget.DrawRectangle(_rectangles[index][i, j], _yellowBrush, 0.6f);
                     }
                 }
             }
@@ -130,38 +130,22 @@ namespace Yutang.Layer
                 foreach (var item2 in item)
                     item2?.Dispose();
 
-            _whiteBrush.Dispose();
+            _yellowBrush.Dispose();
+            _blueBrush.Dispose();
         }
-
-        private static D2D.Bitmap LoadFromFile(string filePath)
-        {
-            WIC.ImagingFactory imagingFactory = new WIC.ImagingFactory();
-            DXIO.NativeFileStream fileStream = new DXIO.NativeFileStream(filePath,
-                DXIO.NativeFileMode.Open, DXIO.NativeFileAccess.Read);
-
-            WIC.BitmapDecoder bitmapDecoder =
-                new WIC.BitmapDecoder(imagingFactory, fileStream, WIC.DecodeOptions.CacheOnDemand);
-            WIC.BitmapFrameDecode frame = bitmapDecoder.GetFrame(0);
-
-            WIC.FormatConverter converter = new WIC.FormatConverter(imagingFactory);
-            converter.Initialize(frame, WIC.PixelFormat.Format32bppPRGBA);
-
-            return D2D.Bitmap.FromWicBitmap(RenderForm.RenderTarget, converter);
-        }
-
         private void LoadSettings()
         {
             for (var i = 0; i < Program.MainSettings.BoardInfomation.Count; i++)
             {
                 var item = Program.MainSettings.BoardInfomation[i];
-                _boards.Add(new Board(item.Width, item.Height));
-                _boards[i].VisibleBoard = item.VisibleBoard;
+                Boards.Add(new Board(item.Width, item.Height));
+                Boards[i].VisibleBoard = item.VisibleBoard;
                 for (var j = 0; j < item.BoardPointInfomation.Count; j++)
                 {
                     var item2 = item.BoardPointInfomation[j];
-                    _boards[i].SetColor(item2.X, item2.Y, item2.Color);
-                    _boards[i].SetVisible(item2.X, item2.Y, item2.Visible);
-                    if (item2.ImagePath != null) _boards[i].SetImage(item2.X, item2.Y, LoadFromFile(Path.Combine(_resPath, item2.ImagePath)));
+                    Boards[i].SetColor(item2.X, item2.Y, item2.Color);
+                    Boards[i].SetVisible(item2.X, item2.Y, item2.Visible);
+                    if (item2.ImagePath != null) Boards[i].SetImage(item2.X, item2.Y, DxHelper.LoadFromFile(Path.Combine(_resPath, item2.ImagePath)));
                 }
             }
         }

@@ -1,4 +1,4 @@
-﻿namespace Yutang.Form
+﻿namespace Yutang.Forms
 {
     partial class RenderForm
     {
@@ -42,6 +42,7 @@
             this.Text = "Bingo";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.RenderForm_FormClosed);
             this.Load += new System.EventHandler(this.RenderForm_Load);
+            this.LocationChanged += new System.EventHandler(this.RenderForm_LocationChanged);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.RenderForm_Paint);
             this.ResumeLayout(false);
 

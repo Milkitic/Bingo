@@ -4,8 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Yutang.Form;
-
+using Yutang.Forms;
 using D2D = SharpDX.Direct2D1;
 using WIC = SharpDX.WIC;
 using Mathe = SharpDX.Mathematics.Interop;
@@ -20,12 +19,12 @@ namespace Yutang.Layer
 
         public Background()
         {
-            _bgBitmap = LoadFromFile(Path.Combine(_resPath, Program.MainSettings.Background));
+            _bgBitmap = DxHelper.LoadFromFile(Path.Combine(_resPath, Program.MainSettings.Background));
         }
 
         public void Measure()
         {
-          
+
         }
 
         public void Draw()
@@ -38,22 +37,6 @@ namespace Yutang.Layer
         public void Dispose()
         {
             _bgBitmap.Dispose();
-        }
-
-        private static D2D.Bitmap LoadFromFile(string filePath)
-        {
-            WIC.ImagingFactory imagingFactory = new WIC.ImagingFactory();
-            DXIO.NativeFileStream fileStream = new DXIO.NativeFileStream(filePath,
-                DXIO.NativeFileMode.Open, DXIO.NativeFileAccess.Read);
-
-            WIC.BitmapDecoder bitmapDecoder =
-                new WIC.BitmapDecoder(imagingFactory, fileStream, WIC.DecodeOptions.CacheOnDemand);
-            WIC.BitmapFrameDecode frame = bitmapDecoder.GetFrame(0);
-
-            WIC.FormatConverter converter = new WIC.FormatConverter(imagingFactory);
-            converter.Initialize(frame, WIC.PixelFormat.Format32bppPRGBA);
-
-            return D2D.Bitmap.FromWicBitmap(RenderForm.RenderTarget, converter);
         }
     }
 }

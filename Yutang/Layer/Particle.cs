@@ -5,8 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Yutang.Form;
-
+using Yutang.Forms;
 using D2D = SharpDX.Direct2D1;
 using WIC = SharpDX.WIC;
 using Mathe = SharpDX.Mathematics.Interop;
@@ -56,7 +55,7 @@ namespace Yutang.Layer
             _oriBitmaps = new D2D.Bitmap[fis.Length];
             for (int i = 0; i < _oriBitmaps.Length; i++)
             {
-                _oriBitmaps[i] = LoadFromFile(fis[i].FullName);
+                _oriBitmaps[i] = DxHelper.LoadFromFile(fis[i].FullName);
             }
 
             _startPos = new Mathe.RawVector2[count];
@@ -118,22 +117,6 @@ namespace Yutang.Layer
         public void Dispose()
         {
 
-        }
-
-        private static D2D.Bitmap LoadFromFile(string filePath)
-        {
-            WIC.ImagingFactory imagingFactory = new WIC.ImagingFactory();
-            DXIO.NativeFileStream fileStream = new DXIO.NativeFileStream(filePath,
-                DXIO.NativeFileMode.Open, DXIO.NativeFileAccess.Read);
-
-            WIC.BitmapDecoder bitmapDecoder =
-                new WIC.BitmapDecoder(imagingFactory, fileStream, WIC.DecodeOptions.CacheOnDemand);
-            WIC.BitmapFrameDecode frame = bitmapDecoder.GetFrame(0);
-
-            WIC.FormatConverter converter = new WIC.FormatConverter(imagingFactory);
-            converter.Initialize(frame, WIC.PixelFormat.Format32bppPRGBA);
-
-            return D2D.Bitmap.FromWicBitmap(RenderForm.RenderTarget, converter);
         }
     }
 }

@@ -11,7 +11,7 @@ using DW = SharpDX.DirectWrite;
 using DXGI = SharpDX.DXGI;
 using Mathe = SharpDX.Mathematics.Interop;
 
-namespace Yutang.Form
+namespace Yutang.Forms
 {
     public partial class RenderForm : System.Windows.Forms.Form
     {
@@ -21,7 +21,7 @@ namespace Yutang.Form
         public static D2D.RenderTarget RenderTarget { get; private set; } // Target of rendering
 
         // Layer
-        private Dictionary<string, ILayer> _layerList;
+        public static Dictionary<string, ILayer> LayerList { get; set; }
 
         // Initial color
         private Mathe.RawColor4 _colorBack;
@@ -41,9 +41,13 @@ namespace Yutang.Form
         private readonly Stopwatch _sw = new Stopwatch();
         private long _delay;
         private readonly Queue<long> _delayQueue = new Queue<long>();
+        private readonly ControlForm _control;
 
         public RenderForm()
         {
+            _control = new ControlForm();
+            _control.Show();
+
             InitializeComponent();
 
             ClientSize = new Size(Program.MainSettings.WindowWidth, Program.MainSettings.WindowHeight);
@@ -77,10 +81,10 @@ namespace Yutang.Form
             // Create colors
             _colorBack = new Mathe.RawColor4(0, 0, 0, 1);
 
-            _layerList = new Dictionary<string, ILayer>();
-            _layerList.Add("back", new Background());
-            if (Program.MainSettings.UseParticle) _layerList.Add("particle", new Particle(500));
-            _layerList.Add("chess", new Chessboard());
+            LayerList = new Dictionary<string, ILayer>();
+            LayerList.Add("back", new Background());
+            if (Program.MainSettings.UseParticle) LayerList.Add("particle", new Particle(500));
+            LayerList.Add("chess", new Chessboard());
 
             // Create brushes
             _whiteBrush = new D2D.SolidColorBrush(RenderTarget, new Mathe.RawColor4(1, 1, 1, 1));
@@ -94,7 +98,6 @@ namespace Yutang.Form
 
         private void RenderForm_Load(object sender, EventArgs e)
         {
-
         }
 
         private void RenderForm_Paint(object sender, PaintEventArgs e)
@@ -114,7 +117,7 @@ namespace Yutang.Form
             RenderTarget.Clear(_colorBack);
 
             // Draw layers
-            foreach (var item in _layerList)
+            foreach (var item in LayerList)
             {
                 item.Value.Measure();
                 item.Value.Draw();
@@ -136,13 +139,19 @@ namespace Yutang.Form
         private void RenderForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             RenderTarget.Dispose();
-            foreach (var item in _layerList)
+            foreach (var item in LayerList)
             {
                 item.Value.Dispose();
             }
 
             FactoryWrite.Dispose();
             Factory.Dispose();
+        }
+
+        private void RenderForm_LocationChanged(object sender, EventArgs e)
+        {
+            _control.Left = Left + Size.Width;
+            _control.Top = Top;
         }
     }
 }

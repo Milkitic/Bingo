@@ -73,10 +73,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Form\RenderForm.cs">
+    <Compile Include="DxHelper.cs" />
+    <Compile Include="Forms\ControlForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form\RenderForm.Designer.cs">
+    <Compile Include="Forms\ControlForm.Designer.cs">
+      <DependentUpon>ControlForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\RenderForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\RenderForm.Designer.cs">
       <DependentUpon>RenderForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Layer\Background.cs" />
@@ -87,6 +94,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Main.cs" />
+    <EmbeddedResource Include="Forms\ControlForm.resx">
+      <DependentUpon>ControlForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -96,7 +106,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Form\RenderForm.resx">
+    <EmbeddedResource Include="Forms\RenderForm.resx">
       <DependentUpon>RenderForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
