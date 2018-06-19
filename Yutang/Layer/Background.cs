@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Yutang.Forms;
 using D2D = SharpDX.Direct2D1;
 using WIC = SharpDX.WIC;
@@ -37,7 +38,7 @@ namespace Yutang.Layer
                 D2D.BitmapInterpolationMode.Linear);
         }
 
-        public void OnClicked(Point point, Mathe.RawRectangleF recF)
+        public void OnClicked(MouseEventArgs e, Mathe.RawRectangleF recF)
         {
 
         }

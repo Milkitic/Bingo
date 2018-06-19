@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
+using System.Windows.Forms;
 using Mathe = SharpDX.Mathematics.Interop;
 
 namespace Yutang.Layer
@@ -10,6 +11,6 @@ namespace Yutang.Layer
         void Measure();
         void Draw();
         void Dispose();
-        void OnClicked(Point point, Mathe.RawRectangleF recF);
+        void OnClicked(MouseEventArgs e, Mathe.RawRectangleF recF);
     }
 }

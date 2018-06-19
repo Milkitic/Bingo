@@ -48,6 +48,8 @@ namespace Yutang.Settings
                 public bool Visible { get; set; }
                 [JsonProperty("image_path")]
                 public string ImagePath { get; set; }
+                [JsonProperty("image_path_a")]
+                public string ImagePathA { get; set; }
             }
         }
     }

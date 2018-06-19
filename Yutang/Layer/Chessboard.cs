@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Yutang.Forms;
 using Yutang.Model;
 using D2D = SharpDX.Direct2D1;
@@ -42,9 +43,12 @@ namespace Yutang.Layer
 
         private readonly List<D2D.Brush[,]> _brushes = new List<D2D.Brush[,]>();
 
-        private readonly Dictionary<Mathe.RawRectangleF, int> _boardMap = new Dictionary<Mathe.RawRectangleF, int>();
+        private readonly Dictionary<Mathe.RawRectangleF, int> _boardMap =
+            new Dictionary<Mathe.RawRectangleF, int>();
         private bool _isBoxing = false;
-        private List<Mathe.RawRectangleF> tmpRectangles = new List<Mathe.RawRectangleF>();
+        private List<Mathe.RawRectangleF> _tmpRectangles = new List<Mathe.RawRectangleF>();
+        private bool _hasActive;
+        private int _sevenLv = 0;
 
         private readonly string _resPath = Path.Combine(Environment.CurrentDirectory, "templet");
 
@@ -97,30 +101,109 @@ namespace Yutang.Layer
                 }
             }
 
-            #region Image settings
-            //_boardCentre.SetImage(0, 2, LoadFromFile(Path.Combine(_resPath, "13.png")));
+            #region ImageNormal settings
+            //_boardCentre.SetNormalImage(0, 2, LoadFromFile(Path.Combine(_resPath, "13.png")));
 
-            //_boardCentre.SetImage(1, 1, LoadFromFile(Path.Combine(_resPath, "1A.png")));
-            //_boardCentre.SetImage(1, 2, LoadFromFile(Path.Combine(_resPath, "6.png")));
-            //_boardCentre.SetImage(1, 3, LoadFromFile(Path.Combine(_resPath, "9.png")));
+            //_boardCentre.SetNormalImage(1, 1, LoadFromFile(Path.Combine(_resPath, "1A.png")));
+            //_boardCentre.SetNormalImage(1, 2, LoadFromFile(Path.Combine(_resPath, "6.png")));
+            //_boardCentre.SetNormalImage(1, 3, LoadFromFile(Path.Combine(_resPath, "9.png")));
 
-            //_boardCentre.SetImage(2, 0, LoadFromFile(Path.Combine(_resPath, "12.png")));
-            //_boardCentre.SetImage(2, 1, LoadFromFile(Path.Combine(_resPath, "2.png")));
-            //_boardCentre.SetImage(2, 2, LoadFromFile(Path.Combine(_resPath, "7C.png")));
-            //_boardCentre.SetImage(2, 3, LoadFromFile(Path.Combine(_resPath, "8.png")));
-            //_boardCentre.SetImage(2, 4, LoadFromFile(Path.Combine(_resPath, "10.png")));
+            //_boardCentre.SetNormalImage(2, 0, LoadFromFile(Path.Combine(_resPath, "12.png")));
+            //_boardCentre.SetNormalImage(2, 1, LoadFromFile(Path.Combine(_resPath, "2.png")));
+            //_boardCentre.SetNormalImage(2, 2, LoadFromFile(Path.Combine(_resPath, "7C.png")));
+            //_boardCentre.SetNormalImage(2, 3, LoadFromFile(Path.Combine(_resPath, "8.png")));
+            //_boardCentre.SetNormalImage(2, 4, LoadFromFile(Path.Combine(_resPath, "10.png")));
 
-            //_boardCentre.SetImage(3, 1, LoadFromFile(Path.Combine(_resPath, "3.png")));
-            //_boardCentre.SetImage(3, 2, LoadFromFile(Path.Combine(_resPath, "4.png")));
-            //_boardCentre.SetImage(3, 3, LoadFromFile(Path.Combine(_resPath, "5.png")));
+            //_boardCentre.SetNormalImage(3, 1, LoadFromFile(Path.Combine(_resPath, "3.png")));
+            //_boardCentre.SetNormalImage(3, 2, LoadFromFile(Path.Combine(_resPath, "4.png")));
+            //_boardCentre.SetNormalImage(3, 3, LoadFromFile(Path.Combine(_resPath, "5.png")));
 
-            //_boardCentre.SetImage(4, 2, LoadFromFile(Path.Combine(_resPath, "11.png")));
+            //_boardCentre.SetNormalImage(4, 2, LoadFromFile(Path.Combine(_resPath, "11.png")));
             #endregion
         }
 
         public void Measure()
         {
-
+            if (Boards[1].IsActive[1, 1] && Boards[1].IsActive[2, 1] && Boards[1].IsActive[3, 1])
+            {
+                Boards[0].IsActive[1, 2] = true;
+                Boards[0].IsActive[5, 2] = true;
+                _hasActive = true;
+            }
+            else if (Boards[1].IsActive[0, 2] && Boards[1].IsActive[1, 2] && Boards[1].IsActive[2, 2] &&
+                     Boards[1].IsActive[3, 2] && Boards[1].IsActive[4, 2])
+            {
+                Boards[0].IsActive[0, 3] = true;
+                Boards[0].IsActive[6, 3] = true;
+                _hasActive = true;
+            }
+            else if (Boards[1].IsActive[2, 0] && Boards[1].IsActive[2, 1] && Boards[1].IsActive[2, 2] &&
+                     Boards[1].IsActive[2, 3] && Boards[1].IsActive[2, 4])
+            {
+                Boards[0].IsActive[3, 0] = true;
+                Boards[0].IsActive[3, 6] = true;
+                _hasActive = true;
+            }
+            else if (Boards[1].IsActive[0, 2] && Boards[1].IsActive[1, 3] && Boards[1].IsActive[2, 4])
+            {
+                Boards[0].IsActive[0, 2] = true;
+                Boards[0].IsActive[4, 6] = true;
+                _hasActive = true;
+            }
+            else if (Boards[1].IsActive[0, 2] && Boards[1].IsActive[1, 1] && Boards[1].IsActive[2, 0])
+            {
+                Boards[0].IsActive[0, 4] = true;
+                Boards[0].IsActive[4, 0] = true;
+                _hasActive = true;
+            }
+            else if (Boards[1].IsActive[1, 1] && Boards[1].IsActive[2, 2] && Boards[1].IsActive[3, 3])
+            {
+                Boards[0].IsActive[1, 1] = true;
+                Boards[0].IsActive[5, 5] = true;
+                _hasActive = true;
+            }
+            else if (Boards[1].IsActive[1, 1] && Boards[1].IsActive[2, 1] && Boards[1].IsActive[3, 1])
+            {
+                Boards[0].IsActive[1, 2] = true;
+                Boards[0].IsActive[5, 2] = true;
+                _hasActive = true;
+            }
+            else if (Boards[1].IsActive[1, 3] && Boards[1].IsActive[2, 3] && Boards[1].IsActive[3, 3])
+            {
+                Boards[0].IsActive[1, 4] = true;
+                Boards[0].IsActive[5, 4] = true;
+                _hasActive = true;
+            }
+            else if (Boards[1].IsActive[1, 3] && Boards[1].IsActive[2, 2] && Boards[1].IsActive[3, 1])
+            {
+                Boards[0].IsActive[1, 5] = true;
+                Boards[0].IsActive[5, 1] = true;
+                _hasActive = true;
+            }
+            else if (Boards[1].IsActive[1, 1] && Boards[1].IsActive[1, 2] && Boards[1].IsActive[1, 3])
+            {
+                Boards[0].IsActive[2, 1] = true;
+                Boards[0].IsActive[2, 5] = true;
+                _hasActive = true;
+            }
+            else if (Boards[1].IsActive[2, 4] && Boards[1].IsActive[3, 3] && Boards[1].IsActive[4, 2])
+            {
+                Boards[0].IsActive[2, 6] = true;
+                Boards[0].IsActive[6, 2] = true;
+                _hasActive = true;
+            }
+            else if (Boards[1].IsActive[1, 1] && Boards[1].IsActive[2, 2] && Boards[1].IsActive[3, 3])
+            {
+                Boards[0].IsActive[1, 1] = true;
+                Boards[0].IsActive[5, 5] = true;
+                _hasActive = true;
+            }
+            else if (Boards[1].IsActive[3, 1] && Boards[1].IsActive[3, 2] && Boards[1].IsActive[3, 3])
+            {
+                Boards[0].IsActive[4, 1] = true;
+                Boards[0].IsActive[4, 5] = true;
+                _hasActive = true;
+            }
         }
 
         public void Draw()
@@ -134,9 +217,17 @@ namespace Yutang.Layer
                     {
                         if (item.VisibleBoard[i, j] == 0) continue;
                         RenderForm.RenderTarget.FillRectangle(_rectangles[index][i, j], _brushes[index][i, j]);
-                        if (item.Image[i, j] != null)
-                            RenderForm.RenderTarget.DrawBitmap(item.Image[i, j], _rectangles[index][i, j], 1,
-                                D2D.BitmapInterpolationMode.Linear);
+                        if (!item.IsActive[i, j])
+                        {
+                            if (item.ImageNormal[i, j] != null)
+                                RenderForm.RenderTarget.DrawBitmap(item.ImageNormal[i, j], _rectangles[index][i, j], 1,
+                                    D2D.BitmapInterpolationMode.Linear);
+                        }
+                        else
+                        {
+                            RenderForm.RenderTarget.DrawBitmap(item.ImageActive[i, j], _rectangles[index][i, j], 1,
+                                 D2D.BitmapInterpolationMode.Linear);
+                        }
                         RenderForm.RenderTarget.DrawRectangle(_rectangles[index][i, j], _yellowBrush, 0.6f);
                     }
                 }
@@ -145,8 +236,8 @@ namespace Yutang.Layer
             RenderForm.RenderTarget.DrawRectangle(_selectedRec, _redBrush, 2f);
             if (_boxBitmap != null)
             {
-                 RenderForm.RenderTarget.FillRectangle(
-                    new Mathe.RawRectangleF(0, 0, RenderForm.Width, RenderForm.Height), _maskBrush);
+                RenderForm.RenderTarget.FillRectangle(
+                   new Mathe.RawRectangleF(0, 0, RenderForm.Width, RenderForm.Height), _maskBrush);
                 RenderForm.RenderTarget.DrawBitmap(_boxBitmap, _boxRec, 1, D2D.BitmapInterpolationMode.Linear);
             }
         }
@@ -161,7 +252,7 @@ namespace Yutang.Layer
             _blueBrush.Dispose();
         }
 
-        public void OnClicked(Point point, Mathe.RawRectangleF recF)
+        public void OnClicked(MouseEventArgs e, Mathe.RawRectangleF recF)
         {
             if (!_isBoxing)
             {
@@ -172,20 +263,233 @@ namespace Yutang.Layer
 
                 int i = _boardMap[recF];
                 Debug.WriteLine(i);
-                ShowBox(point, recF, i);
+                ShowBox(e, recF, i);
             }
             else
             {
-                Rectangles = tmpRectangles.ToArray().ToList();
-                tmpRectangles.Clear();
+                Rectangles = _tmpRectangles.ToArray().ToList();
+                _tmpRectangles.Clear();
                 _boxBitmap = null;
                 _boxRec = default;
                 _isBoxing = false;
             }
         }
 
-        private void ShowBox(Point point, Mathe.RawRectangleF recF, int i)
+        private void ShowBox(MouseEventArgs e, Mathe.RawRectangleF recF, int i)
         {
+            if (e.Button == MouseButtons.Right)
+            {
+                if (!_hasActive)
+                    switch (i)
+                    {
+                        case 24:
+                            Boards[1].IsActive[0, 2] = !Boards[1].IsActive[0, 2];
+                            break;
+                        case 25:
+                            Boards[1].IsActive[1, 1] = !Boards[1].IsActive[1, 1];
+                            break;
+                        case 26:
+                            Boards[1].IsActive[1, 2] = !Boards[1].IsActive[1, 2];
+                            break;
+                        case 27:
+                            Boards[1].IsActive[1, 3] = !Boards[1].IsActive[1, 3];
+                            break;
+                        case 28:
+                            Boards[1].IsActive[2, 0] = !Boards[1].IsActive[2, 0];
+                            break;
+                        case 29:
+                            Boards[1].IsActive[2, 1] = !Boards[1].IsActive[2, 1];
+                            break;
+                        case 30:
+                            if (!Boards[1].IsActive[2, 2])
+                            {
+                                Boards[1].IsActive[2, 2] = true;
+                                Boards[1].SetActiveImage(2, 2,
+                                    DxHelper.LoadFromFile(Path.Combine(_resPath, "7A.png")));
+                                _sevenLv = 0;
+                            }
+                            else
+                            {
+                                switch (_sevenLv)
+                                {
+                                    case 0:
+                                        Boards[1].SetActiveImage(2, 2,
+                                            DxHelper.LoadFromFile(Path.Combine(_resPath, "7B.png")));
+                                        _sevenLv = 1;
+                                        break;
+                                    case 1:
+                                        Boards[1].SetActiveImage(2, 2,
+                                            DxHelper.LoadFromFile(Path.Combine(_resPath, "7C.png")));
+                                        _sevenLv = 2;
+                                        break;
+                                    default:
+                                        Boards[1].IsActive[2, 2] = false;
+                                        break;
+                                }
+                            }
+                            break;
+                        case 31:
+                            Boards[1].IsActive[2, 3] = !Boards[1].IsActive[2, 3];
+                            break;
+                        case 32:
+                            Boards[1].IsActive[2, 4] = !Boards[1].IsActive[2, 4];
+                            break;
+                        case 33:
+                            Boards[1].IsActive[3, 1] = !Boards[1].IsActive[3, 1];
+                            break;
+                        case 34:
+                            Boards[1].IsActive[3, 2] = !Boards[1].IsActive[3, 2];
+                            break;
+                        case 35:
+                            Boards[1].IsActive[3, 3] = !Boards[1].IsActive[3, 3];
+                            break;
+                        case 36:
+                            Boards[1].IsActive[4, 2] = !Boards[1].IsActive[4, 2];
+                            break;
+                    }
+                switch (i)
+                {
+                    case 0:
+                    case 16:
+                        if (Boards[0].IsActive[0, 2] && Boards[0].IsActive[4, 6])
+                        {
+                            Boards[1].IsActive[0, 2] = false;
+                            Boards[1].IsActive[1, 3] = false;
+                            Boards[1].IsActive[2, 4] = false;
+                            Boards[0].IsActive[0, 2] = false;
+                            Boards[0].IsActive[4, 6] = false;
+                            _hasActive = false;
+                        }
+                        break;
+                    case 1:
+                    case 22:
+                        if (Boards[0].IsActive[0, 3] && Boards[0].IsActive[6, 3])
+                        {
+                            Boards[1].IsActive[0, 2] = false;
+                            Boards[1].IsActive[1, 2] = false;
+                            Boards[1].IsActive[2, 2] = false;
+                            Boards[1].IsActive[3, 2] = false;
+                            Boards[1].IsActive[4, 2] = false;
+                            Boards[0].IsActive[0, 3] = false;
+                            Boards[0].IsActive[6, 3] = false;
+                            _hasActive = false;
+                        }
+                        break;
+                    case 2:
+                    case 13:
+                        if (Boards[0].IsActive[0, 4] && Boards[0].IsActive[4, 0])
+                        {
+                            Boards[1].IsActive[0, 2] = false;
+                            Boards[1].IsActive[1, 1] = false;
+                            Boards[1].IsActive[2, 0] = false;
+                            Boards[0].IsActive[0, 4] = false;
+                            Boards[0].IsActive[4, 0] = false;
+                            _hasActive = false;
+                        }
+                        break;
+                    case 3:
+                    case 20:
+                        if (Boards[0].IsActive[1, 1] && Boards[0].IsActive[5, 5])
+                        {
+                            Boards[1].IsActive[1, 1] = false;
+                            Boards[1].IsActive[2, 2] = false;
+                            Boards[1].IsActive[3, 3] = false;
+                            Boards[0].IsActive[1, 1] = false;
+                            Boards[0].IsActive[5, 5] = false;
+                            _hasActive = false;
+                        }
+                        break;
+                    case 4:
+                    case 18:
+                        if (Boards[0].IsActive[1, 2] && Boards[0].IsActive[5, 2])
+                        {
+                            Boards[1].IsActive[1, 1] = false;
+                            Boards[1].IsActive[2, 1] = false;
+                            Boards[1].IsActive[3, 1] = false;
+                            Boards[0].IsActive[1, 2] = false;
+                            Boards[0].IsActive[5, 2] = false;
+                            _hasActive = false;
+                        }
+                        break;
+                    case 5:
+                    case 19:
+                        if (Boards[0].IsActive[1, 4] && Boards[0].IsActive[5, 4])
+                        {
+                            Boards[1].IsActive[1, 3] = false;
+                            Boards[1].IsActive[2, 3] = false;
+                            Boards[1].IsActive[3, 3] = false;
+                            Boards[0].IsActive[1, 4] = false;
+                            Boards[0].IsActive[5, 4] = false;
+                            _hasActive = false;
+                        }
+                        break;
+                    case 6:
+                    case 17:
+                        if (Boards[0].IsActive[1, 5] && Boards[0].IsActive[5, 1])
+                        {
+                            Boards[1].IsActive[1, 3] = false;
+                            Boards[1].IsActive[2, 2] = false;
+                            Boards[1].IsActive[3, 1] = false;
+                            Boards[0].IsActive[1, 5] = false;
+                            Boards[0].IsActive[5, 1] = false;
+                            _hasActive = false;
+                        }
+                        break;
+                    case 8:
+                    case 9:
+                        if (Boards[0].IsActive[2, 1] && Boards[0].IsActive[2, 5])
+                        {
+                            Boards[1].IsActive[1, 1] = false;
+                            Boards[1].IsActive[1, 2] = false;
+                            Boards[1].IsActive[1, 3] = false;
+                            Boards[0].IsActive[2, 1] = false;
+                            Boards[0].IsActive[2, 5] = false;
+                            _hasActive = false;
+                        }
+                        break;
+                    case 10:
+                    case 21:
+                        if (Boards[0].IsActive[2, 6] && Boards[0].IsActive[6, 2])
+                        {
+                            Boards[1].IsActive[2, 4] = false;
+                            Boards[1].IsActive[3, 3] = false;
+                            Boards[1].IsActive[4, 2] = false;
+                            Boards[0].IsActive[2, 6] = false;
+                            Boards[0].IsActive[6, 2] = false;
+                            _hasActive = false;
+                        }
+                        break;
+                    case 11:
+                    case 12:
+                        if (Boards[0].IsActive[3, 0] && Boards[0].IsActive[3, 6])
+                        {
+                            Boards[1].IsActive[2, 0] = false;
+                            Boards[1].IsActive[2, 1] = false;
+                            Boards[1].IsActive[2, 2] = false;
+                            Boards[1].IsActive[2, 3] = false;
+                            Boards[1].IsActive[2, 4] = false;
+                            Boards[0].IsActive[3, 0] = false;
+                            Boards[0].IsActive[3, 6] = false;
+                            _hasActive = false;
+                        }
+                        break;
+                    case 14:
+                    case 15:
+                        if (Boards[0].IsActive[4, 1] && Boards[0].IsActive[4, 5])
+                        {
+                            Boards[1].IsActive[3, 1] = false;
+                            Boards[1].IsActive[3, 2] = false;
+                            Boards[1].IsActive[3, 3] = false;
+                            Boards[0].IsActive[4, 1] = false;
+                            Boards[0].IsActive[4, 5] = false;
+                            _hasActive = false;
+                        }
+                        break;
+                    default:
+                        return;
+                }
+                return;
+            }
             string fileName;
             switch (i)
             {
@@ -251,7 +555,7 @@ namespace Yutang.Layer
                 right = left + scaledW,
                 bottom = top + scaledH;
             _boxRec = new Mathe.RawRectangleF(left, top, right, bottom);
-            tmpRectangles = Rectangles.ToArray().ToList();
+            _tmpRectangles = Rectangles.ToArray().ToList();
             Rectangles.Clear();
             Rectangles.AddRange(new[]
             {
@@ -275,7 +579,12 @@ namespace Yutang.Layer
                     var item2 = item.BoardPointInfomation[j];
                     Boards[i].SetColor(item2.X, item2.Y, item2.Color);
                     Boards[i].SetVisible(item2.X, item2.Y, item2.Visible);
-                    if (item2.ImagePath != null) Boards[i].SetImage(item2.X, item2.Y, DxHelper.LoadFromFile(Path.Combine(_resPath, item2.ImagePath)));
+                    if (item2.ImagePath != null)
+                        Boards[i].SetNormalImage(item2.X, item2.Y,
+                            DxHelper.LoadFromFile(Path.Combine(_resPath, item2.ImagePath)));
+                    if (item2.ImagePathA != null)
+                        Boards[i].SetActiveImage(item2.X, item2.Y,
+                            DxHelper.LoadFromFile(Path.Combine(_resPath, item2.ImagePathA)));
                 }
             }
         }

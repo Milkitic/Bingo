@@ -41,13 +41,9 @@ namespace Yutang.Forms
         private readonly Stopwatch _sw = new Stopwatch();
         private long _delay;
         private readonly Queue<long> _delayQueue = new Queue<long>();
-        private readonly ControlForm _control;
 
         public RenderForm()
         {
-            _control = new ControlForm();
-            _control.Show();
-
             InitializeComponent();
 
             ClientSize = new Size(Program.MainSettings.WindowWidth, Program.MainSettings.WindowHeight);
@@ -148,18 +144,12 @@ namespace Yutang.Forms
             Factory.Dispose();
         }
 
-        private void RenderForm_LocationChanged(object sender, EventArgs e)
-        {
-            _control.Left = Left + Size.Width;
-            _control.Top = Top;
-        }
-
         private void RenderForm_MouseClick(object sender, MouseEventArgs e)
         {
             foreach (var item in LayerList.Reverse())
             {
                 if (!IsInRecs(e, item.Value, out Mathe.RawRectangleF recF)) continue;
-                item.Value.OnClicked(new Point(e.X, e.Y), recF);
+                item.Value.OnClicked(e, recF);
                 break;
             }
         }
