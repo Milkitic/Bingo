@@ -13,7 +13,7 @@ using Mathe = SharpDX.Mathematics.Interop;
 
 namespace Yutang.Forms
 {
-    public partial class RenderForm : System.Windows.Forms.Form
+    public partial class RenderForm : Form
     {
         // Basic
         private static D2D.Factory Factory { get; } = new D2D.Factory(); // Factory for creating 2D elements
@@ -167,6 +167,23 @@ namespace Yutang.Forms
 
             recF = default;
             return false;
+        }
+
+        private void RenderForm_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            var lChess = (Chessboard)LayerList["chess"];
+            foreach (var item in lChess.Boards)
+            {
+                for (int i = 0; i < item.X; i++)
+                {
+                    for (int j = 0; j < item.Y; j++)
+                    {
+                        item.IsActive[i, j] = false;
+                    }
+                }
+            }
+
+            lChess.HasActive = false;
         }
     }
 }

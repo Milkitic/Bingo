@@ -44,6 +44,7 @@
             this.Load += new System.EventHandler(this.RenderForm_Load);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.RenderForm_Paint);
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.RenderForm_MouseClick);
+            this.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.RenderForm_MouseDoubleClick);
             this.ResumeLayout(false);
 
         }

@@ -19,6 +19,7 @@ namespace Yutang.Layer
     internal class Chessboard : ILayer
     {
         public List<Mathe.RawRectangleF> Rectangles { get; private set; } = new List<Mathe.RawRectangleF>();
+        public bool HasActive { get; set; }
 
         private readonly PointF _centerPointF;
 
@@ -47,7 +48,6 @@ namespace Yutang.Layer
             new Dictionary<Mathe.RawRectangleF, int>();
         private bool _isBoxing = false;
         private List<Mathe.RawRectangleF> _tmpRectangles = new List<Mathe.RawRectangleF>();
-        private bool _hasActive;
         private int _sevenLv = 0;
 
         private readonly string _resPath = Path.Combine(Environment.CurrentDirectory, "templet");
@@ -124,90 +124,183 @@ namespace Yutang.Layer
 
         public void Measure()
         {
+            #region 检测触发情况
+
             if (Boards[1].IsActive[1, 1] && Boards[1].IsActive[2, 1] && Boards[1].IsActive[3, 1])
             {
                 Boards[0].IsActive[1, 2] = true;
                 Boards[0].IsActive[5, 2] = true;
-                _hasActive = true;
+                HasActive = true;
             }
-            else if (Boards[1].IsActive[0, 2] && Boards[1].IsActive[1, 2] && Boards[1].IsActive[2, 2] &&
-                     Boards[1].IsActive[3, 2] && Boards[1].IsActive[4, 2])
+            if (Boards[1].IsActive[0, 2] && Boards[1].IsActive[1, 2] && Boards[1].IsActive[2, 2] &&
+                    Boards[1].IsActive[3, 2] && Boards[1].IsActive[4, 2])
             {
                 Boards[0].IsActive[0, 3] = true;
                 Boards[0].IsActive[6, 3] = true;
-                _hasActive = true;
+                HasActive = true;
             }
-            else if (Boards[1].IsActive[2, 0] && Boards[1].IsActive[2, 1] && Boards[1].IsActive[2, 2] &&
-                     Boards[1].IsActive[2, 3] && Boards[1].IsActive[2, 4])
+            if (Boards[1].IsActive[2, 0] && Boards[1].IsActive[2, 1] && Boards[1].IsActive[2, 2] &&
+                    Boards[1].IsActive[2, 3] && Boards[1].IsActive[2, 4])
             {
                 Boards[0].IsActive[3, 0] = true;
                 Boards[0].IsActive[3, 6] = true;
-                _hasActive = true;
+                HasActive = true;
             }
-            else if (Boards[1].IsActive[0, 2] && Boards[1].IsActive[1, 3] && Boards[1].IsActive[2, 4])
+            if (Boards[1].IsActive[0, 2] && Boards[1].IsActive[1, 3] && Boards[1].IsActive[2, 4])
             {
                 Boards[0].IsActive[0, 2] = true;
                 Boards[0].IsActive[4, 6] = true;
-                _hasActive = true;
+                HasActive = true;
             }
-            else if (Boards[1].IsActive[0, 2] && Boards[1].IsActive[1, 1] && Boards[1].IsActive[2, 0])
+            if (Boards[1].IsActive[0, 2] && Boards[1].IsActive[1, 1] && Boards[1].IsActive[2, 0])
             {
                 Boards[0].IsActive[0, 4] = true;
                 Boards[0].IsActive[4, 0] = true;
-                _hasActive = true;
+                HasActive = true;
             }
-            else if (Boards[1].IsActive[1, 1] && Boards[1].IsActive[2, 2] && Boards[1].IsActive[3, 3])
+            if (Boards[1].IsActive[1, 1] && Boards[1].IsActive[2, 2] && Boards[1].IsActive[3, 3])
             {
                 Boards[0].IsActive[1, 1] = true;
                 Boards[0].IsActive[5, 5] = true;
-                _hasActive = true;
+                HasActive = true;
             }
-            else if (Boards[1].IsActive[1, 1] && Boards[1].IsActive[2, 1] && Boards[1].IsActive[3, 1])
+            if (Boards[1].IsActive[1, 1] && Boards[1].IsActive[2, 1] && Boards[1].IsActive[3, 1])
             {
                 Boards[0].IsActive[1, 2] = true;
                 Boards[0].IsActive[5, 2] = true;
-                _hasActive = true;
+                HasActive = true;
             }
-            else if (Boards[1].IsActive[1, 3] && Boards[1].IsActive[2, 3] && Boards[1].IsActive[3, 3])
+            if (Boards[1].IsActive[1, 3] && Boards[1].IsActive[2, 3] && Boards[1].IsActive[3, 3])
             {
                 Boards[0].IsActive[1, 4] = true;
                 Boards[0].IsActive[5, 4] = true;
-                _hasActive = true;
+                HasActive = true;
             }
-            else if (Boards[1].IsActive[1, 3] && Boards[1].IsActive[2, 2] && Boards[1].IsActive[3, 1])
+            if (Boards[1].IsActive[1, 3] && Boards[1].IsActive[2, 2] && Boards[1].IsActive[3, 1])
             {
                 Boards[0].IsActive[1, 5] = true;
                 Boards[0].IsActive[5, 1] = true;
-                _hasActive = true;
+                HasActive = true;
             }
-            else if (Boards[1].IsActive[1, 1] && Boards[1].IsActive[1, 2] && Boards[1].IsActive[1, 3])
+            if (Boards[1].IsActive[1, 1] && Boards[1].IsActive[1, 2] && Boards[1].IsActive[1, 3])
             {
                 Boards[0].IsActive[2, 1] = true;
                 Boards[0].IsActive[2, 5] = true;
-                _hasActive = true;
+                HasActive = true;
             }
-            else if (Boards[1].IsActive[2, 4] && Boards[1].IsActive[3, 3] && Boards[1].IsActive[4, 2])
+            if (Boards[1].IsActive[2, 4] && Boards[1].IsActive[3, 3] && Boards[1].IsActive[4, 2])
             {
                 Boards[0].IsActive[2, 6] = true;
                 Boards[0].IsActive[6, 2] = true;
-                _hasActive = true;
+                HasActive = true;
             }
-            else if (Boards[1].IsActive[1, 1] && Boards[1].IsActive[2, 2] && Boards[1].IsActive[3, 3])
+            if (Boards[1].IsActive[1, 1] && Boards[1].IsActive[2, 2] && Boards[1].IsActive[3, 3])
             {
                 Boards[0].IsActive[1, 1] = true;
                 Boards[0].IsActive[5, 5] = true;
-                _hasActive = true;
+                HasActive = true;
             }
-            else if (Boards[1].IsActive[3, 1] && Boards[1].IsActive[3, 2] && Boards[1].IsActive[3, 3])
+            if (Boards[1].IsActive[3, 1] && Boards[1].IsActive[3, 2] && Boards[1].IsActive[3, 3])
             {
                 Boards[0].IsActive[4, 1] = true;
                 Boards[0].IsActive[4, 5] = true;
-                _hasActive = true;
+                HasActive = true;
             }
+            if (Boards[1].IsActive[2, 0] && Boards[1].IsActive[3, 1] && Boards[1].IsActive[4, 2])
+            {
+                Boards[0].IsActive[2, 0] = true;
+                Boards[0].IsActive[6, 4] = true;
+                HasActive = true;
+            }
+            #endregion
+            #region bug
+
+            if (Boards[0].IsActive[0, 2] && Boards[0].IsActive[4, 6])
+            {
+                Boards[1].IsActive[0, 2] = true;
+                Boards[1].IsActive[1, 3] = true;
+                Boards[1].IsActive[2, 4] = true;
+            }
+            if (Boards[0].IsActive[0, 3] && Boards[0].IsActive[6, 3])
+            {
+                Boards[1].IsActive[0, 2] = true;
+                Boards[1].IsActive[1, 2] = true;
+                Boards[1].IsActive[2, 2] = true;
+                Boards[1].IsActive[3, 2] = true;
+                Boards[1].IsActive[4, 2] = true;
+            }
+            if (Boards[0].IsActive[0, 4] && Boards[0].IsActive[4, 0])
+            {
+                Boards[1].IsActive[0, 2] = true;
+                Boards[1].IsActive[1, 1] = true;
+                Boards[1].IsActive[2, 0] = true;
+                Boards[0].IsActive[0, 4] = true;
+                Boards[0].IsActive[4, 0] = true;
+            }
+            if (Boards[0].IsActive[1, 1] && Boards[0].IsActive[5, 5])
+            {
+                Boards[1].IsActive[1, 1] = true;
+                Boards[1].IsActive[2, 2] = true;
+                Boards[1].IsActive[3, 3] = true;
+            }
+            if (Boards[0].IsActive[1, 2] && Boards[0].IsActive[5, 2])
+            {
+                Boards[1].IsActive[1, 1] = true;
+                Boards[1].IsActive[2, 1] = true;
+                Boards[1].IsActive[3, 1] = true;
+            }
+            if (Boards[0].IsActive[1, 4] && Boards[0].IsActive[5, 4])
+            {
+                Boards[1].IsActive[1, 3] = true;
+                Boards[1].IsActive[2, 3] = true;
+                Boards[1].IsActive[3, 3] = true;
+            }
+            if (Boards[0].IsActive[1, 5] && Boards[0].IsActive[5, 1])
+            {
+                Boards[1].IsActive[1, 3] = true;
+                Boards[1].IsActive[2, 2] = true;
+                Boards[1].IsActive[3, 1] = true;
+            }
+            if (Boards[0].IsActive[2, 1] && Boards[0].IsActive[2, 5])
+            {
+                Boards[1].IsActive[1, 1] = true;
+                Boards[1].IsActive[1, 2] = true;
+                Boards[1].IsActive[1, 3] = true;
+            }
+            if (Boards[0].IsActive[2, 6] && Boards[0].IsActive[6, 2])
+            {
+                Boards[1].IsActive[2, 4] = true;
+                Boards[1].IsActive[3, 3] = true;
+                Boards[1].IsActive[4, 2] = true;
+            }
+            if (Boards[0].IsActive[3, 0] && Boards[0].IsActive[3, 6])
+            {
+                Boards[1].IsActive[2, 0] = true;
+                Boards[1].IsActive[2, 1] = true;
+                Boards[1].IsActive[2, 2] = true;
+                Boards[1].IsActive[2, 3] = true;
+                Boards[1].IsActive[2, 4] = true;
+            }
+            if (Boards[0].IsActive[4, 1] && Boards[0].IsActive[4, 5])
+            {
+                Boards[1].IsActive[3, 1] = true;
+                Boards[1].IsActive[3, 2] = true;
+                Boards[1].IsActive[3, 3] = true;
+            }
+            if (Boards[0].IsActive[2, 0] && Boards[0].IsActive[6, 4])
+            {
+                Boards[1].IsActive[2, 0] = true;
+                Boards[1].IsActive[3, 1] = true;
+                Boards[1].IsActive[4, 2] = true;
+            }
+            #endregion
         }
 
         public void Draw()
         {
+            if (HasActive)
+                RenderForm.RenderTarget.FillRectangle(
+                    new Mathe.RawRectangleF(0, 0, RenderForm.Width, RenderForm.Height), _maskBrush);
             for (var index = 0; index < Boards.Count; index++)
             {
                 var item = Boards[index];
@@ -279,7 +372,7 @@ namespace Yutang.Layer
         {
             if (e.Button == MouseButtons.Right)
             {
-                if (!_hasActive)
+                if (true)
                     switch (i)
                     {
                         case 24:
@@ -304,9 +397,6 @@ namespace Yutang.Layer
                             if (!Boards[1].IsActive[2, 2])
                             {
                                 Boards[1].IsActive[2, 2] = true;
-                                Boards[1].SetActiveImage(2, 2,
-                                    DxHelper.LoadFromFile(Path.Combine(_resPath, "7A.png")));
-                                _sevenLv = 0;
                             }
                             else
                             {
@@ -324,6 +414,9 @@ namespace Yutang.Layer
                                         break;
                                     default:
                                         Boards[1].IsActive[2, 2] = false;
+                                        Boards[1].SetActiveImage(2, 2,
+                                            DxHelper.LoadFromFile(Path.Combine(_resPath, "7A.png")));
+                                        _sevenLv = 0;
                                         break;
                                 }
                             }
@@ -358,7 +451,7 @@ namespace Yutang.Layer
                             Boards[1].IsActive[2, 4] = false;
                             Boards[0].IsActive[0, 2] = false;
                             Boards[0].IsActive[4, 6] = false;
-                            _hasActive = false;
+                            HasActive = false;
                         }
                         break;
                     case 1:
@@ -372,7 +465,7 @@ namespace Yutang.Layer
                             Boards[1].IsActive[4, 2] = false;
                             Boards[0].IsActive[0, 3] = false;
                             Boards[0].IsActive[6, 3] = false;
-                            _hasActive = false;
+                            HasActive = false;
                         }
                         break;
                     case 2:
@@ -384,7 +477,7 @@ namespace Yutang.Layer
                             Boards[1].IsActive[2, 0] = false;
                             Boards[0].IsActive[0, 4] = false;
                             Boards[0].IsActive[4, 0] = false;
-                            _hasActive = false;
+                            HasActive = false;
                         }
                         break;
                     case 3:
@@ -396,7 +489,7 @@ namespace Yutang.Layer
                             Boards[1].IsActive[3, 3] = false;
                             Boards[0].IsActive[1, 1] = false;
                             Boards[0].IsActive[5, 5] = false;
-                            _hasActive = false;
+                            HasActive = false;
                         }
                         break;
                     case 4:
@@ -408,7 +501,7 @@ namespace Yutang.Layer
                             Boards[1].IsActive[3, 1] = false;
                             Boards[0].IsActive[1, 2] = false;
                             Boards[0].IsActive[5, 2] = false;
-                            _hasActive = false;
+                            HasActive = false;
                         }
                         break;
                     case 5:
@@ -420,7 +513,7 @@ namespace Yutang.Layer
                             Boards[1].IsActive[3, 3] = false;
                             Boards[0].IsActive[1, 4] = false;
                             Boards[0].IsActive[5, 4] = false;
-                            _hasActive = false;
+                            HasActive = false;
                         }
                         break;
                     case 6:
@@ -432,7 +525,19 @@ namespace Yutang.Layer
                             Boards[1].IsActive[3, 1] = false;
                             Boards[0].IsActive[1, 5] = false;
                             Boards[0].IsActive[5, 1] = false;
-                            _hasActive = false;
+                            HasActive = false;
+                        }
+                        break;
+                    case 7:
+                    case 23:
+                        if (Boards[0].IsActive[2, 0] && Boards[0].IsActive[6, 4])
+                        {
+                            Boards[1].IsActive[2, 0] = false;
+                            Boards[1].IsActive[3, 1] = false;
+                            Boards[1].IsActive[4, 2] = false;
+                            Boards[0].IsActive[2, 0] = false;
+                            Boards[0].IsActive[6, 4] = false;
+                            HasActive = false;
                         }
                         break;
                     case 8:
@@ -444,7 +549,7 @@ namespace Yutang.Layer
                             Boards[1].IsActive[1, 3] = false;
                             Boards[0].IsActive[2, 1] = false;
                             Boards[0].IsActive[2, 5] = false;
-                            _hasActive = false;
+                            HasActive = false;
                         }
                         break;
                     case 10:
@@ -456,7 +561,7 @@ namespace Yutang.Layer
                             Boards[1].IsActive[4, 2] = false;
                             Boards[0].IsActive[2, 6] = false;
                             Boards[0].IsActive[6, 2] = false;
-                            _hasActive = false;
+                            HasActive = false;
                         }
                         break;
                     case 11:
@@ -470,7 +575,7 @@ namespace Yutang.Layer
                             Boards[1].IsActive[2, 4] = false;
                             Boards[0].IsActive[3, 0] = false;
                             Boards[0].IsActive[3, 6] = false;
-                            _hasActive = false;
+                            HasActive = false;
                         }
                         break;
                     case 14:
@@ -482,7 +587,7 @@ namespace Yutang.Layer
                             Boards[1].IsActive[3, 3] = false;
                             Boards[0].IsActive[4, 1] = false;
                             Boards[0].IsActive[4, 5] = false;
-                            _hasActive = false;
+                            HasActive = false;
                         }
                         break;
                     default:
@@ -520,6 +625,10 @@ namespace Yutang.Layer
                 case 6:
                 case 17:
                     fileName = "des_4.png";
+                    break;
+                case 7:
+                case 23:
+                    fileName = "des_12.png";
                     break;
                 case 8:
                 case 9:
